@@ -33,10 +33,10 @@ const io = new Server(httpServer, {
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+console.log(process.env.MONGO_URI);
 // MongoDB connect
 mongoose
-  .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/msecondapi')
+  .connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 // API Key စစ်ဆေးမည့် Middleware
