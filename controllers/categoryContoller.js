@@ -1,4 +1,4 @@
-import Category from '../models/Category.js';
+import Category from '../models/category.js';
 import shopCategory from '../models/shopcategory.js';
 
 // 1. Create - Category သို့မဟုတ် Brand အသစ်ထည့်ခြင်း
