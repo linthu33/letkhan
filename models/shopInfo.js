@@ -46,7 +46,10 @@ const shopInfoSchema = new mongoose.Schema(
         required: true,
       },
     },
-
+    shopPhone: {
+      type: String,
+      required: true,
+    },
     // ဆိုင်ဖွင့်ထားခြင်း ရှိ/မရှိ (Status)
     is_active: {
       type: Boolean,

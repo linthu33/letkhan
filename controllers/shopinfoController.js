@@ -9,8 +9,8 @@ export const createShop = async (req, res) => {
     }
 
     // 1. Data Validation (Input မပါလာရင် Crash မဖြစ်အောင် စစ်ဆေးခြင်း)
-    const { shop_id, shop_name, city, address_detail } = req.body;
-    if (!shop_id || !shop_name || !city || !address_detail) {
+    const { shop_id, shop_name, city, address_detail, shopPhone } = req.body;
+    if (!shop_id || !shop_name || !city || !address_detail || !shopPhone) {
       return res.status(400).json({
         success: false,
         message: 'လိုအပ်သော အချက်အလက်များ ပြည့်စုံစွာ ဖြည့်ပေးပါ။',
@@ -65,6 +65,7 @@ export const createShop = async (req, res) => {
         city,
         address_detail,
       },
+      shopPhone: req.body.shopPhone || 'N/A', // ဖုန်းနံပါတ် မပါလာရင် N/A ထည့်ပေးမယ်
       is_active: true,
     });
 
