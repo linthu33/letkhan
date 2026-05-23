@@ -36,7 +36,7 @@ app.use(express.json());
 //console.log(process.env.MONGO_URI);
 // MongoDB connect
 mongoose
-  .connect('mongodb://localhost:27017/msecondDB', {
+  .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/msecondDB', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
