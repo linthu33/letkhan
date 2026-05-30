@@ -35,8 +35,9 @@ app.use(cors());
 app.use(express.json());
 //console.log(process.env.MONGO_URI);
 // MongoDB connect
+//'mongodb://localhost:27017/msecondDB'
 mongoose
-  .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/msecondDB', {
+  .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -72,10 +73,22 @@ app.use('/api/shop', apiKeyAuth, ShopRoute);
 app.use('/api/shopinfo', apiKeyAuth, ShopInfoRoute);
 app.use('/api/checkout', apiKeyAuth, CheckOut);
 app.get('/', apiKeyAuth, (req, res) => res.send('API is running...'));
-
+// အွန်လိုင်းရှိနေသော user များကို သိမ်းမည့်နေရာ {}
+let activeUsers = {};
 // Socket.io Logic
 io.on('connection', (socket) => {
   console.log('👤 User Connected:', socket.id);
+
+  // 💡 ၁။ User အွန်လိုင်းတက်လာလျှင် ၎င်း၏ User ID ကို Socket ID နှင့် တွဲမှတ်ခြင်း
+  socket.on('user_connected', (userId) => {
+    if (userId) {
+      activeUsers[userId] = socket.id; // စာရင်းထဲထည့်ခြင်း
+
+      // အွန်လိုင်းရှိနေသော User ID စာရင်းများကို အားလုံးဆီသို့ လှမ်းပို့ (Broadcast) ခြင်း
+      io.emit('get_active_users', Object.keys(activeUsers));
+      console.log('👥 Active Users Updated:', Object.keys(activeUsers));
+    }
+  });
 
   socket.on('join_room', (chatId) => {
     socket.join(chatId);
@@ -103,7 +116,22 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('disconnect', () => console.log('👋 User Disconnected'));
+  // 💡 ၂။ User က App ပိတ်လိုက်လျှင် သို့မဟုတ် Connection ပြတ်တောက်သွားလျှင် စာရင်းမှ ဖျက်ထုတ်ခြင်း
+  socket.on('disconnect', () => {
+    console.log('👋 User Disconnected:', socket.id);
+
+    // ဘယ် User ID က ထွက်သွားတာလဲဆိုတာ Socket ID အလိုက် ရှာဖွေဖျက်ထုတ်ခြင်း
+    for (let userId in activeUsers) {
+      if (activeUsers[userId] === socket.id) {
+        delete activeUsers[userId]; // စာရင်းမှ ဖျက်ခြင်း
+        break;
+      }
+    }
+
+    // အွန်လိုင်းစာရင်းအသစ်ကို အားလုံးဆီသို့ ထပ်မံ Broadcast လုပ်ပေးခြင်း
+    io.emit('get_active_users', Object.keys(activeUsers));
+    console.log('👥 Active Users After Disconnect:', Object.keys(activeUsers));
+  });
 });
 
 const PORT = process.env.PORT || 5000;
